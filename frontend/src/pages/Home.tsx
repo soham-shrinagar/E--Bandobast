@@ -1,11 +1,11 @@
 import SigninWithGoogle from "../components/SigninWithGoogle";
 
 const Home = () => {
-    return (
-        <div>
-            <SigninWithGoogle />
-        </div>
-    )
-}
+  return (
+    <div className="bg-red-400">
+      <SigninWithGoogle />
+    </div>
+  );
+};
 
 export default Home;
