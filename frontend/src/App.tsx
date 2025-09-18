@@ -1,9 +1,10 @@
 import SigninWithGoogle from "./components/SigninWithGoogle"
+import Landing from "./pages/Landing"
+
 function App() {
   return(
     <div>
-      Hi there
-      <SigninWithGoogle />
+      <Landing />
     </div>
 
   )
