@@ -2,7 +2,7 @@ import type { Request, Response } from "express";
 import multer from "multer";
 import fs from "fs";
 import csv from "csv-parser";
-import * as XLSX from "xlsx";
+import XLSX from "xlsx";
 import path from "path";
 
 // Multer setup
