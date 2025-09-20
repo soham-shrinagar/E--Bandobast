@@ -3,6 +3,8 @@ import { useState } from "react";
 export default function Main() {
   const [file, setFile] = useState<File | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const [data, setData] = useState<Record<string, any>[]>([]);
+
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -26,15 +28,15 @@ export default function Main() {
       const res = await fetch(endpoint, {
         method: "POST",
         headers: {
-            token: localStorage.getItem("token") || "",
+          token: localStorage.getItem("token") || "",
         },
         body: formData,
       });
 
       if (!res.ok) throw new Error("Upload failed");
 
-      const data = await res.json();
-      console.log("Extracted Data:", data);
+      const extractedData = await res.json();
+      setData(extractedData); // save data to state
     } catch (err) {
       console.error("Error uploading file:", err);
     } finally {
@@ -70,6 +72,31 @@ export default function Main() {
             </div>
           </div>
         </div>
+      )}
+
+      {data.length > 0 && (
+        <table className="border border-gray-300">
+          <thead>
+            <tr>
+              {Object.keys(data[0]).map((key) => (
+                <th key={key} className="border px-2 py-1">
+                  {key}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {data.map((row, idx) => (
+              <tr key={idx}>
+                {Object.values(row).map((value, i) => (
+                  <td key={i} className="border px-2 py-1">
+                    {value}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
       )}
     </div>
   );
