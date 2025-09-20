@@ -123,7 +123,6 @@ async function insertPersonnelRows(persons: Person[]) {
   return { count: createManyResult.count, inserted: stored };
 }
 
-// -------- Routes --------
 
 export const extractCSV = [
   upload.single("file"),
@@ -205,5 +204,24 @@ export const deployOtp = async (req: Request, res: Response) => {
   } catch (err) {
     console.error("Error deploying OTPs:", err);
     return res.status(500).json({ error: "Error deploying OTPs" });
+  }
+};
+
+// Delete selected personnel
+export const deletePersonnel = async (req: Request, res: Response) => {
+  try {
+    const { phoneNumbers } = req.body as { phoneNumbers: string[] };
+    if (!phoneNumbers || phoneNumbers.length === 0) {
+      return res.status(400).json({ error: "No phone numbers provided" });
+    }
+
+    const result = await prisma.personnel.deleteMany({
+      where: { phoneNumber: { in: phoneNumbers } },
+    });
+
+    return res.json({ message: "Personnel deleted", count: result.count });
+  } catch (err) {
+    console.error("Error deleting personnel:", err);
+    return res.status(500).json({ error: "Error deleting personnel" });
   }
 };
