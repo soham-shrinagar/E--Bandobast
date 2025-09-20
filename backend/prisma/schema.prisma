@@ -22,7 +22,7 @@ model Officer{
 model personnel{
   id              Int           @id @default(autoincrement())
   name            String
-  phoneNumber     String
+  phoneNumber     String        @unique
   gender          String
   age             Int
 }
@@ -48,15 +48,15 @@ model geofencing{
   id             Int          @id @default(autoincrement())
   name           String
   type           String
-  center_lat     Float
-  center_long    Float
+  center_lat     Float?
+  center_long    Float?
   radius         Float?
-  polygon        Json
+  polygon        Json?
   created_at     DateTime     @default(now())
 }
 
 model otp{
   id            Int           @id @default(autoincrement())
-  phoneNumber   String
+  phoneNumber   String        @unique
   otp           String
 }
