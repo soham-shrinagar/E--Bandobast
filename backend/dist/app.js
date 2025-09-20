@@ -66,6 +66,9 @@ app.post("/api/extract-csv", isAuthenticated, extractCSV);
 app.post("/api/extract-excel", isAuthenticated, extractExcel);
 app.get("/api/personnel", isAuthenticated, getAllPersonnel);
 app.delete("/api/delete-personnel", isAuthenticated, deletePersonnel);
+app.get("/main", isAuthenticated, (req, res) => {
+    res.json({ message: "Protected Dashboard" });
+});
 app.post("/api/mobileRegistration", mobileRegistration);
 app.post("/api/mobileLogin", mobileLoginWithPhoneNumber);
 const PORT = process.env.PORT;

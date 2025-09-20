@@ -41,7 +41,7 @@ export default function RegistrationPage() {
       } else {
         alert("User is already Registered");
       }
-      navigate("/login-Id");
+      navigate("/login-email");
 
       form.reset();
     } catch (err) {
