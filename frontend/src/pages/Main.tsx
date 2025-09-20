@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function PersonnelDashboard() {
   const [data, setData] = useState<Record<string, any>[]>([]);
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [selectAll, setSelectAll] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchAll();
@@ -62,6 +65,18 @@ export default function PersonnelDashboard() {
       newSet.add(phone);
     }
     setSelected(newSet);
+    setSelectAll(newSet.size === data.length);
+  };
+
+  const toggleSelectAll = () => {
+    if (selectAll) {
+      setSelected(new Set());
+      setSelectAll(false);
+    } else {
+      const allPhones = new Set(data.map((row) => row.phoneNumber));
+      setSelected(allPhones);
+      setSelectAll(true);
+    }
   };
 
   const deployOtp = async () => {
@@ -80,57 +95,109 @@ export default function PersonnelDashboard() {
       console.log("OTP Deploy result:", payload);
       alert("OTPs deployed successfully!");
       setSelected(new Set());
+      setSelectAll(false);
     } catch (err) {
       console.error("Error deploying OTPs:", err);
       alert("Failed to deploy OTPs");
     }
   };
 
-  return (
-    <div className="flex flex-col items-center justify-center min-h-screen gap-4">
-      <h1 className="text-2xl font-bold">Personnel Records</h1>
+  const deletePersonnel = async () => {
+    if (selected.size === 0) return;
+    if (!window.confirm("Are you sure you want to delete selected personnel?")) return;
 
-      {/* Table with checkboxes */}
-      <table className="border border-gray-300 mt-4">
-        <thead>
-          <tr>
-            <th className="border px-2 py-1">Select</th>
-            <th className="border px-2 py-1">Name</th>
-            <th className="border px-2 py-1">Phone</th>
-            <th className="border px-2 py-1">Age</th>
-            <th className="border px-2 py-1">Gender</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.length > 0 ? (
-            data.map((row, idx) => (
-              <tr key={idx}>
-                <td className="border px-2 py-1 text-center">
-                  <input
-                    type="checkbox"
-                    checked={selected.has(row.phoneNumber)}
-                    onChange={() => toggleSelect(row.phoneNumber)}
-                  />
-                </td>
-                <td className="border px-2 py-1">{row.name}</td>
-                <td className="border px-2 py-1">{row.phoneNumber}</td>
-                <td className="border px-2 py-1">{row.age}</td>
-                <td className="border px-2 py-1">{row.gender}</td>
-              </tr>
-            ))
-          ) : (
+    try {
+      const res = await fetch("http://localhost:3000/api/delete-personnel", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          token: localStorage.getItem("token") || "",
+        },
+        body: JSON.stringify({ phoneNumbers: Array.from(selected) }),
+      });
+      if (!res.ok) throw new Error("Delete failed");
+      await res.json();
+      alert("Selected personnel deleted successfully!");
+      setSelected(new Set());
+      setSelectAll(false);
+      await fetchAll();
+    } catch (err) {
+      console.error("Error deleting personnel:", err);
+      alert("Failed to delete personnel");
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-yellow-50 flex flex-col items-center p-6">
+      {/* Top bar */}
+      <div className="w-full flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-extrabold text-green-800 drop-shadow">
+          📋 Personnel Records
+        </h1>
+        <button
+          onClick={() => navigate("/notification")}
+          className="px-4 py-2 bg-yellow-500 text-white font-semibold rounded-lg shadow-md hover:bg-yellow-600 transition"
+        >
+          message
+        </button>
+      </div>
+
+      {/* Table */}
+      <div className="w-full max-w-5xl bg-white rounded-xl shadow-lg overflow-hidden">
+        <table className="w-full border-collapse">
+          <thead className="bg-green-200 text-green-900">
             <tr>
-              <td colSpan={5} className="text-center py-2">
-                No data available
-              </td>
+              <th className="px-4 py-2">
+                <input
+                  type="checkbox"
+                  checked={selectAll}
+                  onChange={toggleSelectAll}
+                  className="w-4 h-4 accent-green-600"
+                />
+              </th>
+              <th className="px-4 py-2">Name</th>
+              <th className="px-4 py-2">Phone</th>
+              <th className="px-4 py-2">Age</th>
+              <th className="px-4 py-2">Gender</th>
             </tr>
-          )}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {data.length > 0 ? (
+              data.map((row, idx) => (
+                <tr
+                  key={idx}
+                  className={`text-center ${
+                    idx % 2 === 0 ? "bg-green-50" : "bg-yellow-50"
+                  } hover:bg-yellow-100 transition`}
+                >
+                  <td className="px-4 py-2">
+                    <input
+                      type="checkbox"
+                      checked={selected.has(row.phoneNumber)}
+                      onChange={() => toggleSelect(row.phoneNumber)}
+                      className="w-4 h-4 accent-green-600"
+                    />
+                  </td>
+                  <td className="px-4 py-2">{row.name}</td>
+                  <td className="px-4 py-2">{row.phoneNumber}</td>
+                  <td className="px-4 py-2">{row.age}</td>
+                  <td className="px-4 py-2">{row.gender}</td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={5} className="text-center py-6 text-gray-500">
+                  No data available
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
 
       {/* Actions */}
-      <div className="flex gap-4 mt-4">
-        <label className="px-4 py-2 bg-blue-500 text-white rounded cursor-pointer">
+      <div className="flex gap-4 mt-6">
+        <label className="px-6 py-2 bg-green-600 text-white rounded-lg shadow-md cursor-pointer hover:bg-green-700 transition">
           {loading ? "Uploading..." : "Upload File"}
           <input
             type="file"
@@ -142,11 +209,24 @@ export default function PersonnelDashboard() {
         <button
           onClick={deployOtp}
           disabled={selected.size === 0}
-          className={`px-4 py-2 rounded ${
-            selected.size === 0 ? "bg-gray-400" : "bg-green-500 text-white"
+          className={`px-6 py-2 rounded-lg font-semibold shadow-md transition ${
+            selected.size === 0
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-yellow-500 text-white hover:bg-yellow-600"
           }`}
         >
-          Deploy OTP
+          🚀 Deploy OTP
+        </button>
+        <button
+          onClick={deletePersonnel}
+          disabled={selected.size === 0}
+          className={`px-6 py-2 rounded-lg font-semibold shadow-md transition ${
+            selected.size === 0
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-red-500 text-white hover:bg-red-600"
+          }`}
+        >
+          🗑️ Delete
         </button>
       </div>
     </div>
