@@ -77,6 +77,10 @@ app.post("/api/extract-excel", isAuthenticated as RequestHandler ,extractExcel a
 app.get("/api/personnel", isAuthenticated as RequestHandler,getAllPersonnel);
 app.delete("/api/delete-personnel", isAuthenticated as RequestHandler, deletePersonnel);
 
+app.get("/main", isAuthenticated as RequestHandler, (req, res) => {
+  res.json({message: "Protected Dashboard"})
+})
+
 
 const PORT = process.env.PORT;
 app.listen(PORT, ()=>{

@@ -65,6 +65,9 @@ app.post("/api/extract-csv", isAuthenticated, extractCSV);
 app.post("/api/extract-excel", isAuthenticated, extractExcel);
 app.get("/api/personnel", isAuthenticated, getAllPersonnel);
 app.delete("/api/delete-personnel", isAuthenticated, deletePersonnel);
+app.get("/main", isAuthenticated, (req, res) => {
+    res.json({ message: "Protected Dashboard" });
+});
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
