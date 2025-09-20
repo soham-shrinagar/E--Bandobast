@@ -9,6 +9,8 @@ import { sendOtpDev, verifyOtpDev } from "./controllers/otp.js";
 import { getAllPersonnel } from "./controllers/DashBoard.js";
 import { deletePersonnel } from "./controllers/DashBoard.js";
 
+import { mobileLoginWithPhoneNumber, mobileRegistration } from "./controllers/mobileAuthControl.js";
+
 dotenv.config();
 
 const app = express();
@@ -80,6 +82,21 @@ app.delete("/api/delete-personnel", isAuthenticated as RequestHandler, deletePer
 app.get("/main", isAuthenticated as RequestHandler, (req, res) => {
   res.json({message: "Protected Dashboard"})
 })
+
+
+
+
+
+
+
+
+
+
+
+
+
+app.post("/api/mobileRegistration", mobileRegistration);
+app.post("/api/mobileLogin", mobileLoginWithPhoneNumber)
 
 
 const PORT = process.env.PORT;
