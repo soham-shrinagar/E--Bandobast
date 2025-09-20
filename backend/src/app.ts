@@ -7,6 +7,7 @@ import type { RequestHandler } from "express";
 import { extractCSV, extractExcel } from "./controllers/DashBoard.js";
 import { sendOtpDev, verifyOtpDev } from "./controllers/otp.js";
 import { getAllPersonnel } from "./controllers/DashBoard.js";
+import { deletePersonnel } from "./controllers/DashBoard.js";
 
 dotenv.config();
 
@@ -24,13 +25,14 @@ app.use(express.json());
 app.post("/api/registration", registration);
 app.post("/api/login-email", loginWithEmail);
 app.post("/api/login-Id", loginWithId);
-app.post("/send-otp", (req, res) => {
+
+app.post("/send-otp", isAuthenticated as RequestHandler, (req, res) => {
   const { phoneNumber } = req.body;
   sendOtpDev(phoneNumber); 
   res.json({ success: true, message: "OTP sent (check backend console)" });
 });
 
-app.post("/verify-otp", (req, res) => {
+app.post("/verify-otp", isAuthenticated as RequestHandler, (req, res) => {
   const { phoneNumber, otp } = req.body;
   const isValid = verifyOtpDev(phoneNumber, otp);
   if (isValid) {
@@ -40,8 +42,10 @@ app.post("/verify-otp", (req, res) => {
   }
 });
 
+app.post("/api/delete-personnel", isAuthenticated as RequestHandler,deletePersonnel);
 
-app.post('/api/send-notification', async (req, res) => {
+
+app.post('/api/send-notification', isAuthenticated as RequestHandler, async (req, res) => {
   const { phoneNumber, message } = req.body;
 
   try {
@@ -68,10 +72,10 @@ app.post('/api/send-notification', async (req, res) => {
   }
 });
 
-app.post("/api/extract-csv", extractCSV as any);
-app.post("/api/extract-excel", extractExcel as any);
-app.get("/api/personnel", getAllPersonnel);
-app.listen(3000, () => console.log("Server running on :3000"));
+app.post("/api/extract-csv", isAuthenticated as RequestHandler ,extractCSV as any);
+app.post("/api/extract-excel", isAuthenticated as RequestHandler ,extractExcel as any);
+app.get("/api/personnel", isAuthenticated as RequestHandler,getAllPersonnel);
+app.delete("/api/delete-personnel", isAuthenticated as RequestHandler, deletePersonnel);
 
 
 const PORT = process.env.PORT;

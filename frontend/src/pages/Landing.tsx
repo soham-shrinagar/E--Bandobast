@@ -12,7 +12,7 @@ const Landing = () => {
 
     return(
         <div 
-            className="min-h-screen bg-green-100 flex flex-col justify-center items-center px-6 py-8"
+            className="min-h-screen flex flex-col justify-center items-center px-6 py-8"
             onKeyDown={handleKeyPress}
             onClick={handleClick}
             //@ts-ignore

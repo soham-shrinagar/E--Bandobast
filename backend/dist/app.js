@@ -6,6 +6,7 @@ import { isAuthenticated } from "./middleware/authMiddleware.js";
 import { extractCSV, extractExcel } from "./controllers/DashBoard.js";
 import { sendOtpDev, verifyOtpDev } from "./controllers/otp.js";
 import { getAllPersonnel } from "./controllers/DashBoard.js";
+import { deletePersonnel } from "./controllers/DashBoard.js";
 dotenv.config();
 const app = express();
 app.use(cors({
@@ -18,12 +19,12 @@ app.use(express.json());
 app.post("/api/registration", registration);
 app.post("/api/login-email", loginWithEmail);
 app.post("/api/login-Id", loginWithId);
-app.post("/send-otp", (req, res) => {
+app.post("/send-otp", isAuthenticated, (req, res) => {
     const { phoneNumber } = req.body;
     sendOtpDev(phoneNumber);
     res.json({ success: true, message: "OTP sent (check backend console)" });
 });
-app.post("/verify-otp", (req, res) => {
+app.post("/verify-otp", isAuthenticated, (req, res) => {
     const { phoneNumber, otp } = req.body;
     const isValid = verifyOtpDev(phoneNumber, otp);
     if (isValid) {
@@ -33,7 +34,8 @@ app.post("/verify-otp", (req, res) => {
         res.json({ success: false, message: "Invalid OTP ❌" });
     }
 });
-app.post('/api/send-notification', async (req, res) => {
+app.post("/api/delete-personnel", isAuthenticated, deletePersonnel);
+app.post('/api/send-notification', isAuthenticated, async (req, res) => {
     const { phoneNumber, message } = req.body;
     try {
         const response = await fetch('https://your-notification-service.com/send', {
@@ -59,10 +61,10 @@ app.post('/api/send-notification', async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 });
-app.post("/api/extract-csv", extractCSV);
-app.post("/api/extract-excel", extractExcel);
-app.get("/api/personnel", getAllPersonnel);
-app.listen(3000, () => console.log("Server running on :3000"));
+app.post("/api/extract-csv", isAuthenticated, extractCSV);
+app.post("/api/extract-excel", isAuthenticated, extractExcel);
+app.get("/api/personnel", isAuthenticated, getAllPersonnel);
+app.delete("/api/delete-personnel", isAuthenticated, deletePersonnel);
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);

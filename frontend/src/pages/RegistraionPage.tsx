@@ -1,68 +1,3 @@
-// import type { FormEvent } from "react";
-// import { useNavigate } from "react-router-dom";
-
-// export default function RegistrationPage(){
-//     const navigate = useNavigate();
-
-//     async function handleSubmit(e: FormEvent<HTMLFormElement>){
-//         e.preventDefault();
-//         const form = e.currentTarget;
-
-//         const officerId = (form.elements.namedItem("officerId") as HTMLInputElement).value;
-//         const name = (form.elements.namedItem("name") as HTMLInputElement).value;
-//         const email = (form.elements.namedItem("email") as HTMLInputElement).value;
-//         const password = (form.elements.namedItem("password") as HTMLInputElement).value;
-//         const gender = (form.elements.namedItem("gender") as HTMLInputElement).value;
-//         const age = (form.elements.namedItem("age") as HTMLInputElement).value;
-//         const phoneNumber = (form.elements.namedItem("phoneNumber") as HTMLInputElement).value;
-//         const stationName = (form.elements.namedItem("stationName") as HTMLInputElement).value;
-
-//         if(!officerId || !name || !email || !password || !gender || !age || !phoneNumber || !stationName){
-//             alert("All fields are mandatory");
-//             return;
-//         } 
-
-//         const data = {officerId, name, email, password, gender, age, phoneNumber, stationName};
-
-//         try{
-//             const res = await fetch("http://localhost:3000/api/registration", {
-//                 method: "POST",
-//                 headers: {"Content-Type": "application/json"},
-//                 credentials: "include",
-//                 body: JSON.stringify(data)
-//             });
-
-//             if(res.ok){
-//                 alert("Your Registration is Successfull");
-//             }
-//             else{
-//                 alert("User is already Register");
-//             }
-//             navigate("/login-Id");
-
-//             form.officerId.value = "";
-//             //@ts-ignore
-//             form.name.value = "";
-//             form.email.value = "";
-//             form.password.value = "";
-//             form.gender.value = "";
-//             form.age.value = "";
-//             form.phoneNumber.value = "";
-//             form.stationName.value = "";
-//         }
-//         catch(err){
-//             alert("Something went wrong");
-//             console.error("Error from fronten: ", err);
-//         }
-//     }
-
-//     return(
-//         <div>
-            
-//         </div>
-//     )
-// };  
-
 import type { FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
@@ -118,13 +53,17 @@ export default function RegistrationPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+    <div className="h-full w-full bg-green-800">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-yellow-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-lg shadow-xl overflow-hidden w-full max-w-2xl">
-        <div className="bg-indigo-700 py-4 px-6">
+        
+        {/* Header */}
+        <div className="bg-yellow-500 py-4 px-6">
           <h1 className="text-2xl font-bold text-white">Officer Registration</h1>
-          <p className="text-indigo-200">Create your account to access the system</p>
+          <p className="text-yellow-100">Create your account to access the system</p>
         </div>
         
+        {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -136,7 +75,7 @@ export default function RegistrationPage() {
                 name="officerId"
                 type="text"
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                 placeholder="Enter your officer ID"
               />
             </div>
@@ -150,7 +89,7 @@ export default function RegistrationPage() {
                 name="name"
                 type="text"
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                 placeholder="Enter your full name"
               />
             </div>
@@ -164,7 +103,7 @@ export default function RegistrationPage() {
                 name="email"
                 type="email"
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                 placeholder="Enter your email"
               />
             </div>
@@ -178,7 +117,7 @@ export default function RegistrationPage() {
                 name="password"
                 type="password"
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                 placeholder="Create a password"
               />
             </div>
@@ -191,7 +130,7 @@ export default function RegistrationPage() {
                 id="gender"
                 name="gender"
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
               >
                 <option value="">Select Gender</option>
                 <option value="male">Male</option>
@@ -211,7 +150,7 @@ export default function RegistrationPage() {
                 min="18"
                 max="65"
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                 placeholder="Enter your age"
               />
             </div>
@@ -225,7 +164,7 @@ export default function RegistrationPage() {
                 name="phoneNumber"
                 type="tel"
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                 placeholder="Enter your phone number"
               />
             </div>
@@ -239,7 +178,7 @@ export default function RegistrationPage() {
                 name="stationName"
                 type="text"
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                 placeholder="Enter your station name"
               />
             </div>
@@ -249,27 +188,31 @@ export default function RegistrationPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className={`w-full py-3 px-4 rounded-md text-white font-medium ${
-                isLoading ? 'bg-indigo-400 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700'
-              } focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors`}
+              className={`w-full py-3 px-4 rounded-md text-white font-medium transition-colors ${
+                isLoading
+                  ? "bg-green-300 cursor-not-allowed"
+                  : "bg-green-600 hover:bg-green-700"
+              } focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2`}
             >
-              {isLoading ? 'Processing...' : 'Register'}
+              {isLoading ? "Processing..." : "Register"}
             </button>
           </div>
         </form>
         
+        {/* Footer */}
         <div className="bg-gray-50 py-4 px-6 border-t border-gray-200">
           <p className="text-center text-sm text-gray-600">
             Already have an account?{" "}
             <button
-              onClick={() => navigate("/login-Id")}
-              className="font-medium text-indigo-600 hover:text-indigo-500 focus:outline-none focus:underline transition ease-in-out duration-150"
+              onClick={() => navigate("/login-email")}
+              className="font-medium text-green-600 hover:text-green-500 focus:outline-none focus:underline transition ease-in-out duration-150"
             >
               Sign in here
             </button>
           </p>
         </div>
       </div>
+    </div>
     </div>
   );
 }
