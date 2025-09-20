@@ -226,3 +226,14 @@ export const deletePersonnel = async (req: Request, res: Response) => {
     return res.status(500).json({ error: "Error deleting personnel" });
   }
 };
+
+// Get all geofences
+export const getAllGeofences = async (req: Request, res: Response) => {
+  try {
+    const all = await prisma.geofencing.findMany();
+    res.json(all);
+  } catch (err) {
+    console.error("Error fetching geofencing:", err);
+    res.status(500).json({ error: "Error fetching geofencing data" });
+  }
+};

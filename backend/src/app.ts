@@ -10,7 +10,7 @@ import { isAuthenticated } from "./middleware/authMiddleware.js";
 import type { RequestHandler } from "express";
 import { extractCSV, extractExcel } from "./controllers/DashBoard.js";
 import { sendOtpDev, verifyOtpDev } from "./controllers/otp.js";
-import { getAllPersonnel } from "./controllers/DashBoard.js";
+import { getAllPersonnel, getAllGeofences } from "./controllers/DashBoard.js";
 import { deletePersonnel } from "./controllers/DashBoard.js";
 import prisma from "./db/client.js";
 import {
@@ -140,6 +140,8 @@ app.post(
     }
   }
 );
+
+app.get("/api/geofences", isAuthenticated as RequestHandler, getAllGeofences)
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => {

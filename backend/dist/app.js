@@ -5,7 +5,7 @@ import cors from "cors";
 import { isAuthenticated } from "./middleware/authMiddleware.js";
 import { extractCSV, extractExcel } from "./controllers/DashBoard.js";
 import { sendOtpDev, verifyOtpDev } from "./controllers/otp.js";
-import { getAllPersonnel } from "./controllers/DashBoard.js";
+import { getAllPersonnel, getAllGeofences } from "./controllers/DashBoard.js";
 import { deletePersonnel } from "./controllers/DashBoard.js";
 import prisma from "./db/client.js";
 import { mobileLoginWithPhoneNumber, mobileRegistration, } from "./controllers/mobileAuthControl.js";
@@ -91,6 +91,7 @@ app.post("/api/updateCoords", async (req, res) => {
         res.status(500).json({ message: "Failed to update coords" });
     }
 });
+app.get("/api/geofences", isAuthenticated, getAllGeofences);
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);

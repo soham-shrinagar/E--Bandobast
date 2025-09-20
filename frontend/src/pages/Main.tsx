@@ -1,15 +1,20 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import PersonnelMap from "../components/InteractiveMap";
 
 export default function PersonnelDashboard() {
   const [data, setData] = useState<Record<string, any>[]>([]);
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [selectAll, setSelectAll] = useState(false);
+  const [geofences, setGeofences] = useState<any[]>([]);
+  const [selectedGeofence, setSelectedGeofence] = useState<any>(null);
+
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchAll();
+    fetchAllGeofences();
   }, []);
 
   const fetchAll = async () => {
@@ -22,6 +27,19 @@ export default function PersonnelDashboard() {
       setData(all);
     } catch (err) {
       console.error("Error fetching personnel:", err);
+    }
+  };
+
+  const fetchAllGeofences = async () => {
+    try {
+      const res = await fetch("http://localhost:3000/api/geofences", {
+        headers: { token: localStorage.getItem("token") || "" },
+      });
+      if (!res.ok) throw new Error("Failed to fetch geofences");
+      const all = await res.json();
+      setGeofences(all);
+    } catch (err) {
+      console.error("Error fetching geofences:", err);
     }
   };
 
@@ -132,7 +150,7 @@ export default function PersonnelDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-yellow-50 flex flex-col items-center p-6">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-yellow-50 p-6">
       {/* Top bar */}
       <div className="w-full flex justify-between items-center mb-6">
         <h1 className="text-3xl font-extrabold text-green-800 drop-shadow">
@@ -154,94 +172,152 @@ export default function PersonnelDashboard() {
         </div>
       </div>
 
-      {/* Table */}
-      <div className="w-full max-w-5xl bg-white rounded-xl shadow-lg overflow-hidden">
-        <table className="w-full border-collapse">
-          <thead className="bg-green-200 text-green-900">
-            <tr>
-              <th className="px-4 py-2">
-                <input
-                  type="checkbox"
-                  checked={selectAll}
-                  onChange={toggleSelectAll}
-                  className="w-4 h-4 accent-green-600"
-                />
-              </th>
-              <th className="px-4 py-2">Name</th>
-              <th className="px-4 py-2">Phone</th>
-              <th className="px-4 py-2">Age</th>
-              <th className="px-4 py-2">Gender</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.length > 0 ? (
-              data.map((row, idx) => (
-                <tr
-                  key={idx}
-                  className={`text-center ${
-                    idx % 2 === 0 ? "bg-green-50" : "bg-yellow-50"
-                  } hover:bg-yellow-100 transition`}
-                >
-                  <td className="px-4 py-2">
+      {/* Two-column grid */}
+      <div className="grid grid-cols-2 gap-6 w-full max-w-7xl mx-auto">
+        {/* Left column: Table + Actions */}
+        <div className="flex flex-col">
+          {/* Table */}
+          <div className="w-full bg-white rounded-xl shadow-lg overflow-hidden">
+            <table className="w-full border-collapse">
+              <thead className="bg-green-200 text-green-900">
+                <tr>
+                  <th className="px-4 py-2">
                     <input
                       type="checkbox"
-                      checked={selected.has(row.phoneNumber)}
-                      onChange={() => toggleSelect(row.phoneNumber)}
+                      checked={selectAll}
+                      onChange={toggleSelectAll}
                       className="w-4 h-4 accent-green-600"
                     />
-                  </td>
-                  <td className="px-4 py-2">{row.name}</td>
-                  <td className="px-4 py-2">{row.phoneNumber}</td>
-                  <td className="px-4 py-2">{row.age}</td>
-                  <td className="px-4 py-2">{row.gender}</td>
+                  </th>
+                  <th className="px-4 py-2">Name</th>
+                  <th className="px-4 py-2">Phone</th>
+                  <th className="px-4 py-2">Age</th>
+                  <th className="px-4 py-2">Gender</th>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={5} className="text-center py-6 text-gray-500">
-                  No data available
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+              </thead>
+              <tbody>
+                {data.length > 0 ? (
+                  data.map((row, idx) => (
+                    <tr
+                      key={idx}
+                      className={`text-center ${
+                        idx % 2 === 0 ? "bg-green-50" : "bg-yellow-50"
+                      } hover:bg-yellow-100 transition`}
+                    >
+                      <td className="px-4 py-2">
+                        <input
+                          type="checkbox"
+                          checked={selected.has(row.phoneNumber)}
+                          onChange={() => toggleSelect(row.phoneNumber)}
+                          className="w-4 h-4 accent-green-600"
+                        />
+                      </td>
+                      <td className="px-4 py-2">{row.name}</td>
+                      <td className="px-4 py-2">{row.phoneNumber}</td>
+                      <td className="px-4 py-2">{row.age}</td>
+                      <td className="px-4 py-2">{row.gender}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={5} className="text-center py-6 text-gray-500">
+                      No data available
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
 
-      {/* Actions */}
-      <div className="flex gap-4 mt-6">
-        <label className="px-6 py-2 bg-green-600 text-white rounded-lg shadow-md cursor-pointer hover:bg-green-700 transition">
-          {loading ? "Uploading..." : "Upload File"}
-          <input
-            type="file"
-            className="hidden"
-            accept=".csv, .xlsx, .xls"
-            onChange={handleFileChange}
-          />
-        </label>
-        <button
-          onClick={deployOtp}
-          disabled={selected.size === 0}
-          className={`px-6 py-2 rounded-lg font-semibold shadow-md transition ${
-            selected.size === 0
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-yellow-500 text-white hover:bg-yellow-600"
-          }`}
-        >
-          🚀 Deploy OTP
-        </button>
-        <button
-          onClick={deletePersonnel}
-          disabled={selected.size === 0}
-          className={`px-6 py-2 rounded-lg font-semibold shadow-md transition ${
-            selected.size === 0
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-red-500 text-white hover:bg-red-600"
-          }`}
-        >
-          🗑️ Delete
-        </button>
+          {/* Actions */}
+          <div className="flex gap-4 mt-6">
+            <label className="px-6 py-2 bg-green-600 text-white rounded-lg shadow-md cursor-pointer hover:bg-green-700 transition">
+              {loading ? "Uploading..." : "Upload File"}
+              <input
+                type="file"
+                className="hidden"
+                accept=".csv, .xlsx, .xls"
+                onChange={handleFileChange}
+              />
+            </label>
+            <button
+              onClick={deployOtp}
+              disabled={selected.size === 0}
+              className={`px-6 py-2 rounded-lg font-semibold shadow-md transition ${
+                selected.size === 0
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-yellow-500 text-white hover:bg-yellow-600"
+              }`}
+            >
+              🚀 Deploy OTP
+            </button>
+            <button
+              onClick={deletePersonnel}
+              disabled={selected.size === 0}
+              className={`px-6 py-2 rounded-lg font-semibold shadow-md transition ${
+                selected.size === 0
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-red-500 text-white hover:bg-red-600"
+              }`}
+            >
+              🗑️ Delete
+            </button>
+          </div>
+
+          {/* Geofences Table */}
+          <div className="w-full bg-white rounded-xl shadow-lg overflow-hidden">
+            <h2 className="px-4 py-2 font-semibold text-green-800 bg-green-100">
+              🗺️ Geofences
+            </h2>
+            <table className="w-full border-collapse">
+              <thead className="bg-green-200 text-green-900">
+                <tr>
+                  <th className="px-4 py-2">Name</th>
+                  <th className="px-4 py-2">Type</th>
+                  <th className="px-4 py-2">Select</th>
+                </tr>
+              </thead>
+              <tbody>
+                {geofences.length > 0 ? (
+                  geofences.map((fence, idx) => (
+                    <tr
+                      key={idx}
+                      className={`text-center ${
+                        idx % 2 === 0 ? "bg-green-50" : "bg-yellow-50"
+                      } hover:bg-yellow-100 transition`}
+                    >
+                      <td className="px-4 py-2">{fence.name}</td>
+                      <td className="px-4 py-2">{fence.type}</td>
+                      <td className="px-4 py-2">
+                        <input
+                          type="radio"
+                          name="selectedGeofence"
+                          checked={selectedGeofence?.id === fence.id}
+                          onChange={() => setSelectedGeofence(fence)}
+                          className="accent-green-600"
+                        />
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={3} className="text-center py-6 text-gray-500">
+                      No geofences available
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Right column: Map placeholder */}
+        <div className="h-[80vh] bg-gray-200 rounded-xl shadow-lg overflow-hidden">
+          {/* Replace with your map component */}
+          <PersonnelMap geofence={selectedGeofence}/>
+          {/* <span>🗺️ Map goes here</span> */}
+        </div>
       </div>
     </div>
   );
 }
-
