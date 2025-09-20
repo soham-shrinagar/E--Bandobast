@@ -1,19 +1,30 @@
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Link } from "expo-router";
+import { router } from "expo-router";
+import { useAuth } from "@/contexts/AuthContext";
 
 const register = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
+  const { isLoggedIn } = useAuth();
 
+  useEffect(() => {
+    if (isLoggedIn) {
+      router.replace("/deployment"); // or "/dashboard"
+    }
+  }, [isLoggedIn]);
   async function handleSubmit() {
     try {
-      const response = await fetch("http://10.172.118.106:3000/api/mobileRegistration", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phoneNumber, password }),
-      });
+      const response = await fetch(
+        "http://10.172.118.106:3000/api/mobileRegistration",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ phoneNumber, password }),
+        }
+      );
 
       const data = await response.json();
       if (response.ok) {
@@ -57,7 +68,10 @@ const register = () => {
         style={styles.textinput}
       />
 
-      <Pressable onPress={handleSubmit} style={[styles.btn, { backgroundColor: "#28a745" }]}>
+      <Pressable
+        onPress={handleSubmit}
+        style={[styles.btn, { backgroundColor: "#28a745" }]}
+      >
         <Text style={{ color: "#fff" }}>Press to Register</Text>
       </Pressable>
 

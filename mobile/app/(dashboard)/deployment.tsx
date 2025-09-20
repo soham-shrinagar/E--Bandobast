@@ -9,8 +9,15 @@ import React, { useState, useRef, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import MapView, { Circle, Marker } from "react-native-maps";
 import * as Location from "expo-location";
+import { useAuth } from "../../contexts/AuthContext";
+import { Redirect } from "expo-router";
 
 const deployment = () => {
+  const {isLoggedIn, user} = useAuth();
+
+  if(!isLoggedIn){
+    return <Redirect href={"/login"} />
+  }
   const [coords, setCoords] = useState(null); // { latitude, longitude, accuracy }
   const [error, setError] = useState(null);
   const mapRef = useRef(null);

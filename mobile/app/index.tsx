@@ -3,8 +3,18 @@ import { Text, View, Image } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 //@ts-ignore
 import GoaPolice from "../assets/GoaPoliceEmblem.png";
+import { useEffect } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { router } from "expo-router";
 
 export default function Index() {
+  const { isLoggedIn } = useAuth();
+  
+    useEffect(() => {
+      if (isLoggedIn) {
+        router.replace("/deployment"); // or "/dashboard"
+      }
+    }, [isLoggedIn]);
   return (
     <SafeAreaView
       style={{
@@ -120,7 +130,7 @@ export default function Index() {
           Register
         </Link>
 
-        <Link
+        {/* <Link
           href="/deployment"
           style={{
             width: "100%",
@@ -139,7 +149,7 @@ export default function Index() {
           }}
         >
           Dashboard
-        </Link>
+        </Link> */}
       </View>
 
       {/* Footer */}
