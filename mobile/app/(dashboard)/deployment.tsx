@@ -13,10 +13,10 @@ import { useAuth } from "../../contexts/AuthContext";
 import { Redirect } from "expo-router";
 
 const deployment = () => {
-  const {isLoggedIn, user} = useAuth();
+  const { isLoggedIn, user } = useAuth();
 
-  if(!isLoggedIn){
-    return <Redirect href={"/login"} />
+  if (!isLoggedIn) {
+    return <Redirect href={"/login"} />;
   }
   const [coords, setCoords] = useState(null); // { latitude, longitude, accuracy }
   const [error, setError] = useState(null);
@@ -25,6 +25,25 @@ const deployment = () => {
 
   useEffect(() => {
     let mounted = true;
+
+    async function sendCoordsToBackend(latitude: number, longitude: number) {
+      if (!user) return;
+
+      try {
+        await fetch("http://10.172.118.106:3000/api/updateCoords", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            phoneNumber: user.phoneNumber,
+            coords: { lat: latitude, long: longitude },
+          }),
+        });
+      } catch (err) {
+        console.error("Failed to send coords:", err);
+      }
+    }
 
     (async () => {
       try {
@@ -68,6 +87,12 @@ const deployment = () => {
             if (!mounted) return;
             //@ts-ignore
             setCoords(position.coords);
+
+            // send to backend
+            sendCoordsToBackend(
+              position.coords.latitude,
+              position.coords.longitude
+            );
           }
         );
       } catch (e) {
@@ -108,74 +133,92 @@ const deployment = () => {
         backgroundColor: "#fff",
       }}
     >
-      <View style={{
-      flex: 0.25,
-      padding: 16,
-      justifyContent: "center",
-      backgroundColor: "#f8f8f8",
-      }}>
-          <Text style={{ 
-            fontSize: 24, 
-            fontWeight: "bold", 
-            marginBottom: 12, 
-            textAlign: "center" 
-          }}>Deployment</Text>
-
-          <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-            <Pressable style={{
-              flex: 1,
-              paddingVertical: 12,
-              backgroundColor: "#007bff",
-              borderRadius: 8,
-              marginRight: 8,
-              alignItems: "center",
-            }}>
-              <Text>Start Shift</Text>
-            </Pressable>
-            <Pressable style={{
-              flex: 1,
-              paddingVertical: 12,
-              backgroundColor: "#007bff",
-              borderRadius: 8,
-              marginRight: 8,
-              alignItems: "center",
-            }}>
-              <Text>End Shift</Text>
-            </Pressable>  
-          </View>
-      </View>
-      
-      <View style={{flex: 0.75, marginHorizontal: 12, marginBottom:8, borderRadius: 10, overflow: "hidden"}}>
-      <MapView
-        ref={mapRef}
-        style={{flex: 1}}
-        initialRegion={{
-          //@ts-ignore
-          latitude: coords.latitude,
-          //@ts-ignore
-          longitude: coords.longitude,
-          latitudeDelta: 0.01,
-          longitudeDelta: 0.01,
+      <View
+        style={{
+          flex: 0.25,
+          padding: 16,
+          justifyContent: "center",
+          backgroundColor: "#f8f8f8",
         }}
-        showsUserLocation={false} // we draw our own marker
-        showsMyLocationButton={true}
       >
-        <Marker
-          coordinate={{
+        <Text
+          style={{
+            fontSize: 24,
+            fontWeight: "bold",
+            marginBottom: 12,
+            textAlign: "center",
+          }}
+        >
+          Deployment
+        </Text>
+
+        <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+          <Pressable
+            style={{
+              flex: 1,
+              paddingVertical: 12,
+              backgroundColor: "#007bff",
+              borderRadius: 8,
+              marginRight: 8,
+              alignItems: "center",
+            }}
+          >
+            <Text>Start Shift</Text>
+          </Pressable>
+          <Pressable
+            style={{
+              flex: 1,
+              paddingVertical: 12,
+              backgroundColor: "#007bff",
+              borderRadius: 8,
+              marginRight: 8,
+              alignItems: "center",
+            }}
+          >
+            <Text>End Shift</Text>
+          </Pressable>
+        </View>
+      </View>
+
+      <View
+        style={{
+          flex: 0.75,
+          marginHorizontal: 12,
+          marginBottom: 8,
+          borderRadius: 10,
+          overflow: "hidden",
+        }}
+      >
+        <MapView
+          ref={mapRef}
+          style={{ flex: 1 }}
+          initialRegion={{
             //@ts-ignore
             latitude: coords.latitude,
             //@ts-ignore
             longitude: coords.longitude,
+            latitudeDelta: 0.01,
+            longitudeDelta: 0.01,
           }}
-          title="You"
-        />
-        <Circle
-          //@ts-ignore
-          center={{ latitude: coords.latitude, longitude: coords.longitude }}
-          //@ts-ignore
-          radius={coords.accuracy || 25}
-        />
-      </MapView>
+          showsUserLocation={false} // we draw our own marker
+          showsMyLocationButton={true}
+        >
+          <Marker
+            coordinate={{
+              //@ts-ignore
+              latitude: coords.latitude,
+              //@ts-ignore
+              longitude: coords.longitude,
+            }}
+            title="You"
+          />
+          <Circle
+            //@ts-ignore
+            center={{ latitude: coords.latitude, longitude: coords.longitude }}
+            //@ts-ignore
+            radius={coords.accuracy || 25}
+          />
+        </MapView>
       </View>
     </SafeAreaView>
   );

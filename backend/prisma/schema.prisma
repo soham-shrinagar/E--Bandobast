@@ -30,7 +30,11 @@ model personnel{
 model personnelMobile{
   id             Int          @id @default(autoincrement())
   phoneNumber    String       @unique
-  password       String         
+  password       String       
+  deployed       Boolean      @default(false)
+  onShift        Boolean      @default(false)
+  currentCords   Json?
+  geofenceName   String?
 }
 
 model duty{
