@@ -65,7 +65,7 @@ export default function PersonnelDashboard() {
       newSet.add(phone);
     }
     setSelected(newSet);
-    setSelectAll(newSet.size === data.length);
+    if (newSet.size !== data.length) setSelectAll(false);
   };
 
   const toggleSelectAll = () => {
@@ -73,8 +73,8 @@ export default function PersonnelDashboard() {
       setSelected(new Set());
       setSelectAll(false);
     } else {
-      const allPhones = new Set(data.map((row) => row.phoneNumber));
-      setSelected(allPhones);
+      const allPhones = data.map((row) => row.phoneNumber);
+      setSelected(new Set(allPhones));
       setSelectAll(true);
     }
   };
@@ -104,11 +104,9 @@ export default function PersonnelDashboard() {
 
   const deletePersonnel = async () => {
     if (selected.size === 0) return;
-    if (!window.confirm("Are you sure you want to delete selected personnel?")) return;
-
     try {
       const res = await fetch("http://localhost:3000/api/delete-personnel", {
-        method: "POST",
+        method: "DELETE",
         headers: {
           "Content-Type": "application/json",
           token: localStorage.getItem("token") || "",
@@ -116,15 +114,21 @@ export default function PersonnelDashboard() {
         body: JSON.stringify({ phoneNumbers: Array.from(selected) }),
       });
       if (!res.ok) throw new Error("Delete failed");
-      await res.json();
-      alert("Selected personnel deleted successfully!");
+      const payload = await res.json();
+      console.log("Delete result:", payload);
+      alert("Personnel deleted successfully!");
+      await fetchAll();
       setSelected(new Set());
       setSelectAll(false);
-      await fetchAll();
     } catch (err) {
       console.error("Error deleting personnel:", err);
       alert("Failed to delete personnel");
     }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/login"); // change to your desired route
   };
 
   return (
@@ -134,12 +138,20 @@ export default function PersonnelDashboard() {
         <h1 className="text-3xl font-extrabold text-green-800 drop-shadow">
           📋 Personnel Records
         </h1>
-        <button
-          onClick={() => navigate("/notification")}
-          className="px-4 py-2 bg-yellow-500 text-white font-semibold rounded-lg shadow-md hover:bg-yellow-600 transition"
-        >
-          message
-        </button>
+        <div className="flex gap-3">
+          <button
+            onClick={() => navigate("/notification")}
+            className="px-4 py-2 bg-yellow-500 text-white font-semibold rounded-lg shadow-md hover:bg-yellow-600 transition"
+          >
+            message
+          </button>
+          <button
+            onClick={handleLogout}
+            className="px-4 py-2 bg-red-500 text-white font-semibold rounded-lg shadow-md hover:bg-red-600 transition"
+          >
+            logout
+          </button>
+        </div>
       </div>
 
       {/* Table */}
