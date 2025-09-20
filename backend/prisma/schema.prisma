@@ -25,7 +25,38 @@ model personnel{
   phoneNumber     String
   gender          String
   age             Int
+}
+
+model personnelMobile{
+  id             Int          @id @default(autoincrement())
+  phoneNumber    String       @unique
+  password       String         
+}
+
+model duty{
+  id              Int           @id @default(autoincrement())
+  name            String
+  phoneNumber     String
+  gender          String
+  age             Int
   stationName     String
   status          String
   checkOutTime    DateTime
+}
+
+model geofencing{
+  id             Int          @id @default(autoincrement())
+  name           String
+  type           String
+  center_lat     Float
+  center_long    Float
+  radius         Float?
+  polygon        Json
+  created_at     DateTime     @default(now())
+}
+
+model otp{
+  id            Int           @id @default(autoincrement())
+  phoneNumber   String
+  otp           String
 }
