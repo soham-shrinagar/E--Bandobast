@@ -128,7 +128,7 @@ export default function PersonnelDashboard() {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
-    navigate("/login"); // change to your desired route
+    navigate("/login-email"); // change to your desired route
   };
 
   return (

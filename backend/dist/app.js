@@ -7,6 +7,7 @@ import { extractCSV, extractExcel } from "./controllers/DashBoard.js";
 import { sendOtpDev, verifyOtpDev } from "./controllers/otp.js";
 import { getAllPersonnel } from "./controllers/DashBoard.js";
 import { deletePersonnel } from "./controllers/DashBoard.js";
+import { mobileLoginWithPhoneNumber, mobileRegistration } from "./controllers/mobileAuthControl.js";
 dotenv.config();
 const app = express();
 app.use(cors({
@@ -65,6 +66,8 @@ app.post("/api/extract-csv", isAuthenticated, extractCSV);
 app.post("/api/extract-excel", isAuthenticated, extractExcel);
 app.get("/api/personnel", isAuthenticated, getAllPersonnel);
 app.delete("/api/delete-personnel", isAuthenticated, deletePersonnel);
+app.post("/api/mobileRegistration", mobileRegistration);
+app.post("/api/mobileLogin", mobileLoginWithPhoneNumber);
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);

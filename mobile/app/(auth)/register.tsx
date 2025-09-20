@@ -8,7 +8,23 @@ const register = () => {
   const [password, setPassword] = useState("");
 
   async function handleSubmit() {
-    console.log("Register Form Submitted", phoneNumber, password);
+    try {
+      const response = await fetch("http://10.172.118.106:3000/api/mobileRegistration", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phoneNumber, password }),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        console.log("Registration successful:", data);
+        // navigate to dashboard
+      } else {
+        console.log("Registration failed:", data.message || data);
+      }
+    } catch (err) {
+      console.error("Error connecting to backend:", err);
+    }
   }
 
   return (

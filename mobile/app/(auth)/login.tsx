@@ -8,7 +8,23 @@ const login = () => {
   const [password, setPassword] = useState("");
 
   async function handleSubmit() {
-    console.log("Login Form Submitted", phoneNumber, password);
+    try {
+      const response = await fetch("http://10.172.118.106:3000/api/mobileLogin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phoneNumber, password }),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        console.log("Login successful:", data);
+        // navigate to dashboard
+      } else {
+        console.log("Login failed:", data.message || data);
+      }
+    } catch (err) {
+      console.error("Error connecting to backend:", err);
+    }
   }
 
   return (
@@ -21,7 +37,9 @@ const login = () => {
         backgroundColor: "#f2f2f2",
       }}
     >
-      <Text style={{ fontSize: 28, fontWeight: 'bold', marginBottom: 24 }}>Login Page</Text>
+      <Text style={{ fontSize: 28, fontWeight: "bold", marginBottom: 24 }}>
+        Login Page
+      </Text>
       <TextInput
         placeholder="Phone Number"
         keyboardType="phone-pad"
