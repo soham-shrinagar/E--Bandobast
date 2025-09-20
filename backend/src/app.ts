@@ -83,18 +83,6 @@ app.get("/main", isAuthenticated as RequestHandler, (req, res) => {
   res.json({message: "Protected Dashboard"})
 })
 
-
-
-
-
-
-
-
-
-
-
-
-
 app.post("/api/mobileRegistration", mobileRegistration);
 app.post("/api/mobileLogin", mobileLoginWithPhoneNumber)
 
