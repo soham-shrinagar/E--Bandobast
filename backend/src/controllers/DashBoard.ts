@@ -104,6 +104,7 @@ async function insertPersonnelRows(persons: Person[]) {
     where: { phoneNumber: { in: uniqueList.map((p) => p.phoneNumber) } },
     select: { phoneNumber: true },
   });
+  //@ts-ignore
   const existingPhones = new Set(existing.map((e) => e.phoneNumber));
 
   const toInsert = uniqueList.filter((p) => !existingPhones.has(p.phoneNumber));

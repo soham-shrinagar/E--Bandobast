@@ -18,15 +18,11 @@ app.use(express.json());
 app.post("/api/registration", registration);
 app.post("/api/login-email", loginWithEmail);
 app.post("/api/login-Id", loginWithId);
-//app.post("/api/extract-csv", extractCSV);
-//app.post("/api/extract-excel", extractExcel);
-// Officer sends OTP to a user
 app.post("/send-otp", (req, res) => {
     const { phoneNumber } = req.body;
-    sendOtpDev(phoneNumber); // generates + logs OTP in console
+    sendOtpDev(phoneNumber);
     res.json({ success: true, message: "OTP sent (check backend console)" });
 });
-// User enters OTP from mobile app
 app.post("/verify-otp", (req, res) => {
     const { phoneNumber, otp } = req.body;
     const isValid = verifyOtpDev(phoneNumber, otp);
@@ -37,13 +33,9 @@ app.post("/verify-otp", (req, res) => {
         res.json({ success: false, message: "Invalid OTP ❌" });
     }
 });
-// Example backend API route (Node.js/Express)
 app.post('/api/send-notification', async (req, res) => {
     const { phoneNumber, message } = req.body;
     try {
-        // Here you would integrate with your mobile notification service
-        // This could be Firebase Cloud Messaging (FCM), Twilio, or a custom solution
-        // Example using a hypothetical notification service
         const response = await fetch('https://your-notification-service.com/send', {
             method: 'POST',
             headers: {
