@@ -84,7 +84,11 @@ app.get("/main", isAuthenticated as RequestHandler, (req, res) => {
 })
 
 app.post("/api/mobileRegistration", mobileRegistration);
-app.post("/api/mobileLogin", mobileLoginWithPhoneNumber)
+app.post("/api/mobileLogin", mobileLoginWithPhoneNumber);
+
+
+const MOBILE_URL = process.env.BACKEND_URL;
+app.get(MOBILE_URL + "/deployment", isAuthenticated as RequestHandler, )
 
 
 const PORT = process.env.PORT;

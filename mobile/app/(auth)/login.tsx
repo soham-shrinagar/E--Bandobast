@@ -1,9 +1,21 @@
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
+import { useAuth } from "../../contexts/AuthContext";
+
+
 
 const login = () => {
+  const {loginn} = useAuth();
+  const { isLoggedIn } = useAuth();
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      router.replace("/deployment"); // or "/dashboard"
+    }
+  }, [isLoggedIn]);
+
   const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
 
@@ -18,10 +30,14 @@ const login = () => {
       const data = await response.json();
       if (response.ok) {
         console.log("Login successful:", data);
-        // navigate to dashboard
+        await loginn({phoneNumber: data.personnelMobile}, data.token)
+        setPhoneNumber("")
+        setPassword("")
+        router.replace("/deployment")
       } else {
         console.log("Login failed:", data.message || data);
       }
+
     } catch (err) {
       console.error("Error connecting to backend:", err);
     }
