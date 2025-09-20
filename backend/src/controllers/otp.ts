@@ -1,4 +1,3 @@
-// otp.ts
 const otpStore: Record<string, string> = {};
 
 export function sendOtpDev(phoneNumber: string): string {
@@ -12,7 +11,7 @@ export function verifyOtpDev(phoneNumber: string, enteredOtp: string): boolean {
   const validOtp = otpStore[phoneNumber];
   if (!validOtp) return false;
   if (validOtp === enteredOtp) {
-    delete otpStore[phoneNumber]; // OTP used, clear it
+    delete otpStore[phoneNumber]; 
     return true;
   }
   return false;
