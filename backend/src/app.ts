@@ -9,6 +9,8 @@ import { sendOtpDev, verifyOtpDev } from "./controllers/otp.js";
 import { getAllPersonnel } from "./controllers/DashBoard.js";
 import { deletePersonnel } from "./controllers/DashBoard.js";
 
+import { mobileLoginWithPhoneNumber, mobileRegistration } from "./controllers/mobileAuthControl.js";
+
 dotenv.config();
 
 const app = express();
@@ -76,6 +78,21 @@ app.post("/api/extract-csv", isAuthenticated as RequestHandler ,extractCSV as an
 app.post("/api/extract-excel", isAuthenticated as RequestHandler ,extractExcel as any);
 app.get("/api/personnel", isAuthenticated as RequestHandler,getAllPersonnel);
 app.delete("/api/delete-personnel", isAuthenticated as RequestHandler, deletePersonnel);
+
+
+
+
+
+
+
+
+
+
+
+
+
+app.post("/api/mobileRegistration", mobileRegistration);
+app.post("/api/mobileLogin", mobileLoginWithPhoneNumber)
 
 
 const PORT = process.env.PORT;
