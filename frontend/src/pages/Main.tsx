@@ -144,9 +144,46 @@ export default function PersonnelDashboard() {
     }
   };
 
+  const assignLocation = async () => {
+    if (selected.size === 0) {
+      alert("Please select at least one personnel");
+      return;
+    }
+    if (!selectedGeofence) {
+      alert("Please select a geofence first");
+      return;
+    }
+
+    try {
+      for (const phone of selected) {
+        const person = data.find((p) => p.phoneNumber === phone);
+        if (!person) continue;
+
+        const res = await fetch("http://localhost:3000/assignLocation", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            token: localStorage.getItem("token") || "",
+          },
+          body: JSON.stringify({
+            userId: person.id, // assuming "id" is in your personnel schema
+            geofenceId: selectedGeofence.id,
+          }),
+        });
+        if (!res.ok) throw new Error("Assign failed for " + phone);
+      }
+      alert("Locations assigned successfully!");
+      setSelected(new Set());
+      setSelectAll(false);
+    } catch (err) {
+      console.error("Error assigning location:", err);
+      alert("Failed to assign location(s)");
+    }
+  };
+
   const handleLogout = () => {
     localStorage.removeItem("token");
-    navigate("/login-email"); // change to your desired route
+    navigate("/login-email");
   };
 
   return (
@@ -176,7 +213,7 @@ export default function PersonnelDashboard() {
       <div className="grid grid-cols-2 gap-6 w-full max-w-7xl mx-auto">
         {/* Left column: Table + Actions */}
         <div className="flex flex-col">
-          {/* Table */}
+          {/* Personnel Table */}
           <div className="w-full bg-white rounded-xl shadow-lg overflow-hidden">
             <table className="w-full border-collapse">
               <thead className="bg-green-200 text-green-900">
@@ -230,7 +267,7 @@ export default function PersonnelDashboard() {
           </div>
 
           {/* Actions */}
-          <div className="flex gap-4 mt-6">
+          <div className="flex gap-4 mt-6 flex-wrap">
             <label className="px-6 py-2 bg-green-600 text-white rounded-lg shadow-md cursor-pointer hover:bg-green-700 transition">
               {loading ? "Uploading..." : "Upload File"}
               <input
@@ -262,10 +299,21 @@ export default function PersonnelDashboard() {
             >
               🗑️ Delete
             </button>
+            <button
+              onClick={assignLocation}
+              disabled={selected.size === 0 || !selectedGeofence}
+              className={`px-6 py-2 rounded-lg font-semibold shadow-md transition ${
+                selected.size === 0 || !selectedGeofence
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-blue-500 text-white hover:bg-blue-600"
+              }`}
+            >
+              📍 Assign Location
+            </button>
           </div>
 
           {/* Geofences Table */}
-          <div className="w-full bg-white rounded-xl shadow-lg overflow-hidden">
+          <div className="w-full bg-white rounded-xl shadow-lg overflow-hidden mt-6">
             <h2 className="px-4 py-2 font-semibold text-green-800 bg-green-100">
               🗺️ Geofences
             </h2>
@@ -313,9 +361,7 @@ export default function PersonnelDashboard() {
 
         {/* Right column: Map placeholder */}
         <div className="h-[80vh] bg-gray-200 rounded-xl shadow-lg overflow-hidden">
-          {/* Replace with your map component */}
-          <PersonnelMap geofence={selectedGeofence}/>
-          {/* <span>🗺️ Map goes here</span> */}
+          <PersonnelMap geofence={selectedGeofence} />
         </div>
       </div>
     </div>
