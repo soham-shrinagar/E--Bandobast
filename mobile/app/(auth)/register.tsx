@@ -17,6 +17,7 @@ const register = () => {
   }, [isLoggedIn]);
   async function handleSubmit() {
     try {
+      console.log("Registering,",phoneNumber, password)
       const response = await fetch(
         "http://10.172.118.106:3000/api/mobileRegistration",
         {
@@ -29,6 +30,9 @@ const register = () => {
       const data = await response.json();
       if (response.ok) {
         console.log("Registration successful:", data);
+        setPhoneNumber("");
+        setPassword("");
+        router.replace("/login");
         // navigate to dashboard
       } else {
         console.log("Registration failed:", data.message || data);

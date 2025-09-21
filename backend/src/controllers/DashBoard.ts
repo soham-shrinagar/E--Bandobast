@@ -6,6 +6,8 @@ import XLSX from "xlsx";
 import path from "path";
 import prisma from "../db/client.js";
 
+import { insertNewGeofence } from "../db/dbfunction.js";
+
 const upload = multer({ dest: "uploads/" });
 if (!fs.existsSync("uploads")) fs.mkdirSync("uploads");
 
@@ -224,5 +226,34 @@ export const deletePersonnel = async (req: Request, res: Response) => {
   } catch (err) {
     console.error("Error deleting personnel:", err);
     return res.status(500).json({ error: "Error deleting personnel" });
+  }
+};
+
+// Get all geofences
+export const getAllGeofences = async (req: Request, res: Response) => {
+  try {
+    const all = await prisma.geofencing.findMany();
+    res.json(all);
+  } catch (err) {
+    console.error("Error fetching geofencing:", err);
+    res.status(500).json({ error: "Error fetching geofencing data" });
+  }
+};
+
+export const newGeofence = async (req: Request, res: Response) => {
+  try {
+    const name = req.body.name;
+    const type = req.body.type;
+    const center_lat = req.body.center_lat;
+    const center_long = req.body.center_long;
+    const radius = req.body.radius;
+    const polygon = req.body.polygon;
+
+    const newGeofence = await insertNewGeofence(name, type, center_lat, center_long, radius, polygon);
+
+    res.status(201).json(newGeofence)
+  } catch (err) {
+    console.error("Error Saving Geofence:", err);
+    res.status(500).json({error: "Failed to save geofence"})
   }
 };
