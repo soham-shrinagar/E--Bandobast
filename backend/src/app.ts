@@ -1,9 +1,5 @@
 import express from "express";
-import {
-  registration,
-  loginWithEmail,
-  loginWithId,
-} from "./controllers/AuthControl.js";
+import { registration, loginWithEmail,loginWithId } from "./controllers/AuthControl.js";
 import dotenv from "dotenv";
 import cors from "cors";
 import { isAuthenticated } from "./middleware/authMiddleware.js";
@@ -13,10 +9,8 @@ import { sendOtpDev, verifyOtpDev } from "./controllers/otp.js";
 import { getAllPersonnel, getAllGeofences } from "./controllers/DashBoard.js";
 import { deletePersonnel } from "./controllers/DashBoard.js";
 import prisma from "./db/client.js";
-import {
-  mobileLoginWithPhoneNumber,
-  mobileRegistration,
-} from "./controllers/mobileAuthControl.js";
+import { mobileLoginWithPhoneNumber, mobileRegistration } from "./controllers/mobileAuthControl.js";
+import { assignLocation, pendingAssignments, markNotified } from "./controllers/Assignments.js";
 
 dotenv.config();
 
@@ -141,7 +135,11 @@ app.post(
   }
 );
 
-app.get("/api/geofences", isAuthenticated as RequestHandler, getAllGeofences)
+app.get("/api/geofences", isAuthenticated as RequestHandler, getAllGeofences);
+app.post("/assignLocation", assignLocation);
+app.get("/pendingAssignments", pendingAssignments);
+app.post("/markNotified", markNotified);
+
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => {

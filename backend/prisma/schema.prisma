@@ -64,3 +64,11 @@ model otp{
   phoneNumber   String        @unique
   otp           String
 }
+
+model Assignment {
+  id          Int       @id @default(autoincrement())
+  userId      Int
+  geofenceId  Int
+  isNotified  Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+}
