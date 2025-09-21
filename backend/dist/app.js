@@ -9,6 +9,7 @@ import { getAllPersonnel, getAllGeofences } from "./controllers/DashBoard.js";
 import { deletePersonnel } from "./controllers/DashBoard.js";
 import prisma from "./db/client.js";
 import { mobileLoginWithPhoneNumber, mobileRegistration, } from "./controllers/mobileAuthControl.js";
+import { newGeofence } from "./controllers/DashBoard.js";
 dotenv.config();
 const app = express();
 app.use(cors({
@@ -92,6 +93,8 @@ app.post("/api/updateCoords", async (req, res) => {
     }
 });
 app.get("/api/geofences", isAuthenticated, getAllGeofences);
+//@ts-ignore
+app.post("/api/save-geofence", newGeofence);
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);

@@ -29,3 +29,25 @@ export async function getUserByEmail(email: string) {
     
     return existingUser;
 }
+
+export async function insertNewGeofence(
+  name: string,
+  type: string,
+  center_lat: number | null = null,
+  center_long: number | null = null,
+  radius: number | null = null,
+  polygon: any = null
+) {
+  const newGeofence = await prisma.geofencing.create({
+    data: {
+      name,
+      type,
+      center_lat,
+      center_long,
+      radius,
+      polygon,
+    },
+  });
+
+  return newGeofence;
+}

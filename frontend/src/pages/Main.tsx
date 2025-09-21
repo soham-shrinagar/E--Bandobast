@@ -175,7 +175,7 @@ export default function PersonnelDashboard() {
       {/* Two-column grid */}
       <div className="grid grid-cols-2 gap-6 w-full max-w-7xl mx-auto">
         {/* Left column: Table + Actions */}
-        <div className="flex flex-col">
+        <div className="flex flex-col space-y-6">
           {/* Table */}
           <div className="w-full bg-white rounded-xl shadow-lg overflow-hidden">
             <table className="w-full border-collapse">
@@ -195,40 +195,98 @@ export default function PersonnelDashboard() {
                   <th className="px-4 py-2">Gender</th>
                 </tr>
               </thead>
-              <tbody>
-                {data.length > 0 ? (
-                  data.map((row, idx) => (
-                    <tr
-                      key={idx}
-                      className={`text-center ${
-                        idx % 2 === 0 ? "bg-green-50" : "bg-yellow-50"
-                      } hover:bg-yellow-100 transition`}
-                    >
-                      <td className="px-4 py-2">
-                        <input
-                          type="checkbox"
-                          checked={selected.has(row.phoneNumber)}
-                          onChange={() => toggleSelect(row.phoneNumber)}
-                          className="w-4 h-4 accent-green-600"
-                        />
-                      </td>
-                      <td className="px-4 py-2">{row.name}</td>
-                      <td className="px-4 py-2">{row.phoneNumber}</td>
-                      <td className="px-4 py-2">{row.age}</td>
-                      <td className="px-4 py-2">{row.gender}</td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={5} className="text-center py-6 text-gray-500">
-                      No data available
-                    </td>
-                  </tr>
-                )}
-              </tbody>
             </table>
+            <div className="max-h-50 overflow-y-auto">
+              <table className="w-full border-collapse">
+                <tbody>
+                  {data.length > 0 ? (
+                    data.map((row, idx) => (
+                      <tr
+                        key={idx}
+                        className={`text-center ${
+                          idx % 2 === 0 ? "bg-green-50" : "bg-yellow-50"
+                        } hover:bg-yellow-100 transition`}
+                      >
+                        <td className="px-4 py-2">
+                          <input
+                            type="checkbox"
+                            checked={selected.has(row.phoneNumber)}
+                            onChange={() => toggleSelect(row.phoneNumber)}
+                            className="w-4 h-4 accent-green-600"
+                          />
+                        </td>
+                        <td className="px-4 py-2">{row.name}</td>
+                        <td className="px-4 py-2">{row.phoneNumber}</td>
+                        <td className="px-4 py-2">{row.age}</td>
+                        <td className="px-4 py-2">{row.gender}</td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td
+                        colSpan={5}
+                        className="text-center py-6 text-gray-500"
+                      >
+                        No data available
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
 
+          
+
+          {/* Geofences Table */}
+          <div className="w-full bg-white rounded-xl shadow-lg overflow-hidden mb-6">
+            <table className="w-full border-collapse">
+              <thead className="bg-green-200 text-green-900 sticky top-0 z-10">
+                <tr>
+                  <th className="px-4 py-2">Name</th>
+                  <th className="px-4 py-2">Type</th>
+                  <th className="px-4 py-2">Select</th>
+                </tr>
+              </thead>
+            </table>
+            <div className="max-h-30 overflow-y-auto">
+              <table className="w-full border-collapse">
+                <tbody>
+                  {geofences.length > 0 ? (
+                    geofences.map((fence, idx) => (
+                      <tr
+                        key={idx}
+                        className={`text-center ${
+                          idx % 2 === 0 ? "bg-green-50" : "bg-yellow-50"
+                        } hover:bg-yellow-100 transition`}
+                      >
+                        <td className="px-4 py-2">{fence.name}</td>
+                        <td className="px-4 py-2">{fence.type}</td>
+                        <td className="px-4 py-2">
+                          <input
+                            type="radio"
+                            name="selectedGeofence"
+                            checked={selectedGeofence?.id === fence.id}
+                            onChange={() => setSelectedGeofence(fence)}
+                            className="accent-green-600"
+                          />
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td
+                        colSpan={3}
+                        className="text-center py-6 text-gray-500"
+                      >
+                        No geofences available
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
           {/* Actions */}
           <div className="flex gap-4 mt-6">
             <label className="px-6 py-2 bg-green-600 text-white rounded-lg shadow-md cursor-pointer hover:bg-green-700 transition">
@@ -263,58 +321,12 @@ export default function PersonnelDashboard() {
               🗑️ Delete
             </button>
           </div>
-
-          {/* Geofences Table */}
-          <div className="w-full bg-white rounded-xl shadow-lg overflow-hidden">
-            <h2 className="px-4 py-2 font-semibold text-green-800 bg-green-100">
-              🗺️ Geofences
-            </h2>
-            <table className="w-full border-collapse">
-              <thead className="bg-green-200 text-green-900">
-                <tr>
-                  <th className="px-4 py-2">Name</th>
-                  <th className="px-4 py-2">Type</th>
-                  <th className="px-4 py-2">Select</th>
-                </tr>
-              </thead>
-              <tbody>
-                {geofences.length > 0 ? (
-                  geofences.map((fence, idx) => (
-                    <tr
-                      key={idx}
-                      className={`text-center ${
-                        idx % 2 === 0 ? "bg-green-50" : "bg-yellow-50"
-                      } hover:bg-yellow-100 transition`}
-                    >
-                      <td className="px-4 py-2">{fence.name}</td>
-                      <td className="px-4 py-2">{fence.type}</td>
-                      <td className="px-4 py-2">
-                        <input
-                          type="radio"
-                          name="selectedGeofence"
-                          checked={selectedGeofence?.id === fence.id}
-                          onChange={() => setSelectedGeofence(fence)}
-                          className="accent-green-600"
-                        />
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={3} className="text-center py-6 text-gray-500">
-                      No geofences available
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
         </div>
 
         {/* Right column: Map placeholder */}
         <div className="h-[80vh] bg-gray-200 rounded-xl shadow-lg overflow-hidden">
           {/* Replace with your map component */}
-          <PersonnelMap geofence={selectedGeofence}/>
+          <PersonnelMap geofence={selectedGeofence} />
           {/* <span>🗺️ Map goes here</span> */}
         </div>
       </div>

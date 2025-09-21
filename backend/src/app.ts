@@ -17,6 +17,7 @@ import {
   mobileLoginWithPhoneNumber,
   mobileRegistration,
 } from "./controllers/mobileAuthControl.js";
+import { newGeofence } from "./controllers/DashBoard.js";
 
 dotenv.config();
 
@@ -142,6 +143,8 @@ app.post(
 );
 
 app.get("/api/geofences", isAuthenticated as RequestHandler, getAllGeofences)
+//@ts-ignore
+app.post("/api/save-geofence", newGeofence);
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
