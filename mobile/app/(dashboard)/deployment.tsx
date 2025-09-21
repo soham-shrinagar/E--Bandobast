@@ -5,9 +5,10 @@ import {
   Text,
   View,
 } from "react-native";
+//@ts-ignore
 import React, { useState, useRef, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import MapView, { Circle, Marker } from "react-native-maps";
+import MapView, { Circle, Marker, Polygon } from "react-native-maps";
 import * as Location from "expo-location";
 import { useAuth } from "../../contexts/AuthContext";
 import { Redirect } from "expo-router";
@@ -22,6 +23,39 @@ const deployment = () => {
   const [error, setError] = useState(null);
   const mapRef = useRef(null);
   const subRef = useRef(null);
+
+  // const [deploymentInfo, setDeploymentInfo] = useState<any>(null);
+  // const [geofence, setGeofence] = useState<any>(null);
+  // // --- Fetch deployment info ---
+  // useEffect(() => {
+  //   if (!user?.phoneNumber) return;
+
+  //   const fetchDeploymentInfo = async () => {
+  //     try {
+  //       const res = await fetch(
+  //         `http://10.172.118.106:3000/api/deployment/${user.phoneNumber}`
+  //       );
+  //       if (!res.ok) throw new Error("Failed to fetch deployment info");
+  //       const data = await res.json();
+  //       setDeploymentInfo(data);
+
+  //       // If user is deployed, fetch geofence
+  //       if (data.deployed && data.geofenceId) {
+  //         const geoRes = await fetch(
+  //           `http://10.172.118.106:3000/api/geofence/${user.phoneNumber}`
+  //         );
+  //         if (!geoRes.ok) throw new Error("Failed to fetch geofence");
+  //         const geoData = await geoRes.json();
+  //         setGeofence(geoData);
+  //       }
+  //     } catch (err: any) {
+  //       console.error(err);
+  //       setError(err.message);
+  //     }
+  //   };
+
+  //   fetchDeploymentInfo();
+  // }, [user?.phoneNumber]);
 
   useEffect(() => {
     let mounted = true;
@@ -190,6 +224,7 @@ const deployment = () => {
         }}
       >
         <MapView
+        //@ts-ignore
           ref={mapRef}
           style={{ flex: 1 }}
           initialRegion={{
@@ -218,6 +253,23 @@ const deployment = () => {
             //@ts-ignore
             radius={coords.accuracy || 25}
           />
+
+          {/* Geofence if deployed
+        {deploymentInfo.deployed && geofence && geofence.type === "circle" && (
+          <Circle
+            center={{ latitude: geofence.center_lat, longitude: geofence.center_long }}
+            radius={geofence.radius || 100}
+            strokeColor="red"
+            fillColor="rgba(255,0,0,0.3)"
+          />
+        )}
+        {deploymentInfo.deployed && geofence && geofence.type === "polygon" && (
+          <Polygon
+            coordinates={geofence.polygon.map((p: any) => ({ latitude: p.lat, longitude: p.lng }))}
+            strokeColor="red"
+            fillColor="rgba(255,0,0,0.3)"
+          />
+        )} */}
         </MapView>
       </View>
     </SafeAreaView>

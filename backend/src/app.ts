@@ -118,33 +118,108 @@ app.get("/main", isAuthenticated as RequestHandler, (req, res) => {
 app.post("/api/mobileRegistration", mobileRegistration);
 app.post("/api/mobileLogin", mobileLoginWithPhoneNumber);
 
-app.post(
-  "/api/updateCoords",
-  async (req, res) => {
-    const { phoneNumber, coords } = req.body;
+app.post("/api/updateCoords", async (req, res) => {
+  const { phoneNumber, coords } = req.body;
 
-    if (!phoneNumber || !coords) {
-      return res.status(400).json({ message: "Missing data" });
-    }
-
-    try {
-      const updatedUser = await prisma.personnelMobile.update({
-        where: { phoneNumber },
-        //@ts-ignore
-        data: { currentCords: coords },
-      });
-      console.log("Updating coords for", phoneNumber, coords);
-      res.json(updatedUser);
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ message: "Failed to update coords" });
-    }
+  if (!phoneNumber || !coords) {
+    return res.status(400).json({ message: "Missing data" });
   }
-);
 
-app.get("/api/geofences", isAuthenticated as RequestHandler, getAllGeofences)
+  try {
+    const updatedUser = await prisma.personnelMobile.update({
+      where: { phoneNumber },
+      //@ts-ignore
+      data: { currentCords: coords },
+    });
+    console.log("Updating coords for", phoneNumber, coords);
+    res.json(updatedUser);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to update coords" });
+  }
+});
+
+app.get("/api/geofences", isAuthenticated as RequestHandler, getAllGeofences);
 //@ts-ignore
 app.post("/api/save-geofence", newGeofence);
+
+app.post("/api/deploy-personnel", async (req, res) => {
+  const { phoneNumbers, geofenceId } = req.body;
+
+  if (!phoneNumbers?.length || !geofenceId) {
+    return res
+      .status(400)
+      .json({ error: "Missing phoneNumbers or geofenceId" });
+  }
+
+  try {
+    // Fetch geofence name
+    const geofence = await prisma.geofencing.findUnique({
+      where: { id: geofenceId },
+    });
+    if (!geofence) return res.status(404).json({ error: "Geofence not found" });
+
+    // Update personnelMobile records
+    const updated = await prisma.personnelMobile.updateMany({
+      where: { phoneNumber: { in: phoneNumbers } },
+      data: {
+        deployed: true,
+        //@ts-ignore
+        geofenceId: geofence.id
+      },
+    });
+
+    return res.json({ message: "Personnel deployed", count: updated.count });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "Server error" });
+  }
+});
+// app.get("/api/geofence/:phoneNumber", async (req, res) => {
+//   const { phoneNumber } = req.params;
+//   try {
+//     const user = await prisma.personnelMobile.findUnique({
+//       where: { phoneNumber },
+//     });
+
+//     if (!user || !user.deployed || !user.geofenceId) {
+//       return res.status(404).json({ error: "User not deployed or geofence not set" });
+//     }
+
+//     const geofence = await prisma.geofencing.findUnique({
+//       where: { id: user.geofenceId },
+//     });
+
+//     if (!geofence) return res.status(404).json({ error: "Geofence not found" });
+
+//     res.json(geofence);
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ error: "Server error" });
+//   }
+// });
+
+app.get("/api/geofence/:id/personnel", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const personnel = await prisma.personnelMobile.findMany({
+      where: {
+        deployed: true,
+        geofenceId: Number(id),
+      },
+      select: {
+        phoneNumber: true,
+        currentCords: true, // assuming coords is stored as { lat, long }
+      },
+    });
+
+    res.json(personnel);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => {

@@ -149,6 +149,41 @@ export default function PersonnelDashboard() {
     navigate("/login-email"); // change to your desired route
   };
 
+  const deployPersonnelToGeofence = async () => {
+    if (selected.size === 0) return;
+    if (!selectedGeofence) {
+      alert("Please select a sector/geofence first");
+      return;
+    }
+
+    try {
+      const res = await fetch("http://localhost:3000/api/deploy-personnel", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          token: localStorage.getItem("token") || "",
+        },
+        body: JSON.stringify({
+          phoneNumbers: Array.from(selected),
+          geofenceId: selectedGeofence.id,
+        }),
+      });
+
+      if (!res.ok) throw new Error("Deployment failed");
+
+      const payload = await res.json();
+      console.log("Deploy result:", payload);
+      alert(`Personnel deployed successfully (${payload.count})`);
+
+      // Optionally refresh table or reset selection
+      setSelected(new Set());
+      setSelectAll(false);
+      await fetchAll();
+    } catch (err) {
+      console.error(err);
+      alert("Failed to deploy personnel");
+    }
+  };
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-yellow-50 p-6">
       {/* Top bar */}
@@ -178,26 +213,25 @@ export default function PersonnelDashboard() {
         <div className="flex flex-col space-y-6">
           {/* Table */}
           <div className="w-full bg-white rounded-xl shadow-lg overflow-hidden">
-            <table className="w-full border-collapse">
-              <thead className="bg-green-200 text-green-900">
-                <tr>
-                  <th className="px-4 py-2">
-                    <input
-                      type="checkbox"
-                      checked={selectAll}
-                      onChange={toggleSelectAll}
-                      className="w-4 h-4 accent-green-600"
-                    />
-                  </th>
-                  <th className="px-4 py-2">Name</th>
-                  <th className="px-4 py-2">Phone</th>
-                  <th className="px-4 py-2">Age</th>
-                  <th className="px-4 py-2">Gender</th>
-                </tr>
-              </thead>
-            </table>
-            <div className="max-h-50 overflow-y-auto">
+            <div className="max-h-60 overflow-y-auto">
               <table className="w-full border-collapse">
+                <thead className="bg-green-200 text-green-900">
+                  <tr>
+                    <th className="px-4 py-2">
+                      <input
+                        type="checkbox"
+                        checked={selectAll}
+                        onChange={toggleSelectAll}
+                        className="w-4 h-4 accent-green-600"
+                      />
+                    </th>
+                    <th className="px-4 py-2">Name</th>
+                    <th className="px-4 py-2">Phone</th>
+                    <th className="px-4 py-2">Age</th>
+                    <th className="px-4 py-2">Gender</th>
+                  </tr>
+                </thead>
+
                 <tbody>
                   {data.length > 0 ? (
                     data.map((row, idx) => (
@@ -236,21 +270,18 @@ export default function PersonnelDashboard() {
             </div>
           </div>
 
-          
-
           {/* Geofences Table */}
           <div className="w-full bg-white rounded-xl shadow-lg overflow-hidden mb-6">
-            <table className="w-full border-collapse">
-              <thead className="bg-green-200 text-green-900 sticky top-0 z-10">
-                <tr>
-                  <th className="px-4 py-2">Name</th>
-                  <th className="px-4 py-2">Type</th>
-                  <th className="px-4 py-2">Select</th>
-                </tr>
-              </thead>
-            </table>
-            <div className="max-h-30 overflow-y-auto">
+            <div className="max-h-40 overflow-y-auto">
               <table className="w-full border-collapse">
+                <thead className="bg-green-200 text-green-900 sticky top-0 z-10">
+                  <tr>
+                    <th className="px-4 py-2">Name</th>
+                    <th className="px-4 py-2">Type</th>
+                    <th className="px-4 py-2">Select</th>
+                  </tr>
+                </thead>
+
                 <tbody>
                   {geofences.length > 0 ? (
                     geofences.map((fence, idx) => (
@@ -287,6 +318,7 @@ export default function PersonnelDashboard() {
               </table>
             </div>
           </div>
+
           {/* Actions */}
           <div className="flex gap-4 mt-6">
             <label className="px-6 py-2 bg-green-600 text-white rounded-lg shadow-md cursor-pointer hover:bg-green-700 transition">
@@ -319,6 +351,17 @@ export default function PersonnelDashboard() {
               }`}
             >
               🗑️ Delete
+            </button>
+            <button
+              onClick={deployPersonnelToGeofence}
+              disabled={selected.size === 0 || !selectedGeofence}
+              className={`px-6 py-2 rounded-lg font-semibold shadow-md transition ${
+                selected.size === 0 || !selectedGeofence
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-green-500 text-white hover:bg-green-600"
+              }`}
+            >
+              📡 Deploy
             </button>
           </div>
         </div>

@@ -7,60 +7,69 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Officer{
-  id              Int           @id @default(autoincrement())
-  officerId       String        @unique
-  name            String        
-  email           String        @unique
-  password        String?
-  gender          String
-  age             Int
-  phoneNumber     String        @unique
-  stationName     String
+model Officer {
+  id          Int     @id @default(autoincrement())
+  officerId   String  @unique
+  name        String
+  email       String  @unique
+  password    String?
+  gender      String
+  age         Int
+  phoneNumber String  @unique
+  stationName String
 }
 
-model personnel{
-  id              Int           @id @default(autoincrement())
-  name            String
-  phoneNumber     String        @unique
-  gender          String
-  age             Int
+model personnel {
+  id          Int    @id @default(autoincrement())
+  name        String
+  phoneNumber String @unique
+  gender      String
+  age         Int
 }
 
-model personnelMobile{
-  id             Int          @id @default(autoincrement())
-  phoneNumber    String       @unique
-  password       String       
-  deployed       Boolean      @default(false)
-  onShift        Boolean      @default(false)
-  currentCords   Json?
-  geofenceName   String?
+model personnelMobile {
+  id           Int     @id @default(autoincrement())
+  phoneNumber  String  @unique
+  password     String
+  currentCords Json?
+  deployed     Boolean @default(false)
+  geofenceName String?
+  geofenceId   Int?
+  onShift      Boolean @default(false)
 }
 
-model duty{
-  id              Int           @id @default(autoincrement())
-  name            String
-  phoneNumber     String
-  gender          String
-  age             Int
-  stationName     String
-  status          String
-  checkOutTime    DateTime
+model duty {
+  id           Int      @id @default(autoincrement())
+  name         String
+  phoneNumber  String
+  gender       String
+  age          Int
+  stationName  String
+  status       String
+  checkOutTime DateTime
 }
 
-model geofencing{
-  id             Int          @id @default(autoincrement())
-  name           String
-  type           String
-  center_lat     Float?
-  center_long    Float?
-  radius         Float?
-  polygon        Json?
-  created_at     DateTime     @default(now())
+model geofencing {
+  id          Int      @id @default(autoincrement())
+  name        String
+  type        String
+  center_lat  Float?
+  center_long Float?
+  radius      Float?
+  polygon     Json?
+  created_at  DateTime @default(now())
 }
 
-model otp{
-  id            Int           @id @default(autoincrement())
-  phoneNumber   String        @unique
-  otp           String
+model otp {
+  id          Int    @id @default(autoincrement())
+  phoneNumber String @unique
+  otp         String
+}
+
+model Assignment {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  geofenceId Int
+  isNotified Boolean  @default(false)
+  createdAt  DateTime @default(now())
 }

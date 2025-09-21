@@ -1,5 +1,12 @@
 import { useEffect, useState } from "react";
-import { MapContainer, TileLayer, FeatureGroup, useMap } from "react-leaflet";
+import {
+  MapContainer,
+  TileLayer,
+  FeatureGroup,
+  useMap,
+  Marker,
+  Popup,
+} from "react-leaflet";
 import { EditControl } from "react-leaflet-draw";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -72,6 +79,42 @@ export default function PersonnelMap({ geofence }: PersonnelMapProps) {
   const [newGeofence, setNewGeofence] = useState<any>(null);
   const [showNameModal, setShowNameModal] = useState(false);
   const [geofenceName, setGeofenceName] = useState("");
+
+  const [personnel, setPersonnel] = useState<
+    { lat: number; lng: number; phone: string }[]
+  >([]);
+  useEffect(() => {
+    if (!geofence?.id) {
+      setPersonnel([]);
+      return;
+    }
+
+    const fetchPersonnel = async () => {
+      try {
+        const res = await fetch(
+          `http://localhost:3000/api/geofence/${geofence.id}/personnel`,
+          {
+            headers: { token: localStorage.getItem("token") || "" },
+          }
+        );
+        if (!res.ok) throw new Error("Failed to fetch personnel");
+        const data = await res.json();
+
+        const mapped = data.map((p: any) => ({
+          lat: p.currentCords.lat,
+          lng: p.currentCords.long,
+          phone: p.phoneNumber,
+        }));
+
+        setPersonnel(mapped);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchPersonnel();
+  }, [geofence]);
+
   const handleCreated = (e: any) => {
     const { layerType, layer } = e;
     setNewGeofence({ layerType, layer });
@@ -140,10 +183,8 @@ export default function PersonnelMap({ geofence }: PersonnelMapProps) {
           attribution="&copy; OpenStreetMap contributors"
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-
         {/* Highlight selected geofence */}
         <GeofenceHighlighter geofence={geofence} />
-
         <FeatureGroup>
           <EditControl
             position="topright"
@@ -168,6 +209,11 @@ export default function PersonnelMap({ geofence }: PersonnelMapProps) {
             }}
           />
         </FeatureGroup>
+        {personnel.map((p, idx) => (
+          <Marker key={idx} position={[p.lat, p.lng]}>
+            <Popup>{p.phone}</Popup>
+          </Marker>
+        ))}
       </MapContainer>
       {showNameModal && (
         <div className="fixed inset-0 z-[2000] flex items-center justify-center">

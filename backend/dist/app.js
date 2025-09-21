@@ -95,6 +95,75 @@ app.post("/api/updateCoords", async (req, res) => {
 app.get("/api/geofences", isAuthenticated, getAllGeofences);
 //@ts-ignore
 app.post("/api/save-geofence", newGeofence);
+app.post("/api/deploy-personnel", async (req, res) => {
+    const { phoneNumbers, geofenceId } = req.body;
+    if (!phoneNumbers?.length || !geofenceId) {
+        return res
+            .status(400)
+            .json({ error: "Missing phoneNumbers or geofenceId" });
+    }
+    try {
+        // Fetch geofence name
+        const geofence = await prisma.geofencing.findUnique({
+            where: { id: geofenceId },
+        });
+        if (!geofence)
+            return res.status(404).json({ error: "Geofence not found" });
+        // Update personnelMobile records
+        const updated = await prisma.personnelMobile.updateMany({
+            where: { phoneNumber: { in: phoneNumbers } },
+            data: {
+                deployed: true,
+                //@ts-ignore
+                geofenceId: geofence.id
+            },
+        });
+        return res.json({ message: "Personnel deployed", count: updated.count });
+    }
+    catch (err) {
+        console.error(err);
+        return res.status(500).json({ error: "Server error" });
+    }
+});
+// app.get("/api/geofence/:phoneNumber", async (req, res) => {
+//   const { phoneNumber } = req.params;
+//   try {
+//     const user = await prisma.personnelMobile.findUnique({
+//       where: { phoneNumber },
+//     });
+//     if (!user || !user.deployed || !user.geofenceId) {
+//       return res.status(404).json({ error: "User not deployed or geofence not set" });
+//     }
+//     const geofence = await prisma.geofencing.findUnique({
+//       where: { id: user.geofenceId },
+//     });
+//     if (!geofence) return res.status(404).json({ error: "Geofence not found" });
+//     res.json(geofence);
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ error: "Server error" });
+//   }
+// });
+app.get("/api/geofence/:id/personnel", async (req, res) => {
+    const { id } = req.params;
+    try {
+        const personnel = await prisma.personnelMobile.findMany({
+            where: {
+                deployed: true,
+                geofenceId: Number(id),
+            },
+            select: {
+                phoneNumber: true,
+                currentCords: true, // assuming coords is stored as { lat, long }
+            },
+        });
+        res.json(personnel);
+    }
+    catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Server error" });
+    }
+});
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
